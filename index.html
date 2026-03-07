@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>CREADOR LEO X</title>
+    <style>
+        :root {
+            --primary: #ff0000;
+            --bg-dark: #050000;
+            --panel-bg: rgba(15, 0, 0, 0.95);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            /* Soporte para Notch en iOS */
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        .panel {
+            width: 90%;
+            max-width: 380px;
+            background: var(--panel-bg);
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: rgba(255, 0, 0, 0.2);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--primary);
+        }
+
+        .header span { color: var(--primary); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+
+        .content { display: flex; height: 380px; }
+
+        .sidebar {
+            width: 70px;
+            border-right: 1px solid rgba(255, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            gap: 25px;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .sidebar-icon { 
+            font-size: 24px; 
+            cursor: pointer; 
+            opacity: 0.3; 
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .sidebar-icon.active { 
+            opacity: 1; 
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 8px var(--primary)); 
+        }
+
+        .options { 
+            flex: 1; 
+            padding: 20px; 
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+        }
+
+        .option-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 18px; 
+        }
+
+        .option-item span { font-size: 14px; font-weight: 500; text-transform: uppercase; }
+        
+        .fov-container { margin-top: 15px; padding: 12px; background: rgba(255,0,0,0.1); border-radius: 10px; }
+        
+        .fov-range { 
+            width: 100%; 
+            accent-color: var(--primary); 
+            height: 6px;
+            margin-top: 10px;
+        }
+
+        .btn-inject {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(255,0,0,0.3);
+            active: transform: scale(0.98);
+        }
+
+        .status-bar {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid #00ff00;
+        }
+
+        .dot-green { 
+            height: 10px; width: 10px; 
+            background: #00ff00; 
+            border-radius: 50%; 
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        .console {
+            background: #000;
+            border-radius: 8px;
+            padding: 12px;
+            height: 120px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #ff4444;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            display: none;
+        }
+
+        .game-footer {
+            padding: 15px;
+            display: none; 
+            gap: 10px;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .btn-launch {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: white;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-launch:active { background: var(--primary); }
+
+        /* Switches Estilo Moderno */
+        .switch { position: relative; width: 40px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { 
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; 
+            background: #333; transition: .4s; border-radius: 20px; 
+        }
+        .slider:before { 
+            position: absolute; content: ""; height: 16px; width: 16px; 
+            left: 3px; bottom: 3px; background: white; transition: .4s; border-radius: 50%; 
+        }
+        input:checked + .slider { background: var(--primary); }
+        input:checked + .slider:before { transform: translateX(18px); }
+    </style>
+</head>
+<body>
+
+<div class="panel">
+    <div class="header">
+        <span>CREADOR LEO X</span>
+        <span onclick="window.location.reload()" style="cursor:pointer">✕</span>
+    </div>
+
+    <div class="content">
+        <div class="sidebar">
+            <div class="sidebar-icon active" onclick="tab('tab1', event)">🍓</div>
+            <div class="sidebar-icon" onclick="tab('tab2', event)">🍓</div>
+            <div class="sidebar-icon" onclick="tab('tab3', event)">🍓</div>
+            <div class="sidebar-icon" onclick="tab('tab4', event)">🍓</div>
+        </div>
+
+        <div class="options">
+            <div id="tab1" class="tab-content">
+                <div class="option-item"><span>AIMBOT LEGIT</span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+                <div class="option-item"><span>ALTA PRECISIÓN</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="fov-container">
+                    <div style="display:flex; justify-content:space-between; font-size:13px;"><span>Aimfov Range</span><span id="fov-val">1</span></div>
+                    <input type="range" class="fov-range" min="1" max="100" value="1" oninput="document.getElementById('fov-val').innerText=this.value">
+                </div>
+            </div>
+
+            <div id="tab2" class="tab-content" style="display:none">
+                <div class="option-item"><span>Aimlock</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="option-item"><span>No RECOIL</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="option-item"><span>Bypass Anti-Ban</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+            </div>
+
+            <div id="tab3" class="tab-content" style="display:none">
+                <div class="option-item"><span>Regedit legit</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="option-item"><span>Auto-Headshot</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="option-item"><span>Optimizar Ping</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+            </div>
+
+            <div id="tab4" class="tab-content" style="display:none">
+                <button class="btn-inject" id="btn-start" onclick="startInjected()">🍓 INYECTAR SCRIPT</button>
+                <div class="status-bar" id="status-box">
+                    <div class="dot-green"></div>
+                    <span style="font-size: 13px;">PROCESANDO DATOS...</span>
+                </div>
+                <div class="console" id="log-box"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-footer" id="game-btns">
+        <button class="btn-launch" onclick="abrirGame('normal')">ABRIR FF</button>
+        <button class="btn-launch" onclick="abrirGame('max')">ABRIR MAX</button>
+    </div>
+</div>
+
+<script>
+    function tab(id, event) {
+        document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+        document.getElementById(id).style.display = 'block';
+        document.querySelectorAll('.sidebar-icon').forEach(i => i.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+    }
+
+    function startInjected() {
+        const btn = document.getElementById('btn-start');
+        const status = document.getElementById('status-box');
+        const log = document.getElementById('log-box');
+        const footer = document.getElementById('game-btns');
+
+        btn.style.display = 'none';
+        status.style.display = 'flex';
+        log.style.display = 'block';
+
+        const scripts = [
+            "> Conectando al servidor...",
+            "> Bypass activado correctamente.",
+            "> Inyectando Regedit 2024...",
+            "> Aplicando Aimfov dinámico...",
+            "> Proceso completado con éxito 🍓"
+        ];
+
+        let i = 0;
+        const interval = setInterval(() => {
+            if(i < scripts.length) {
+                log.innerHTML += scripts[i] + "<br>";
+                log.scrollTop = log.scrollHeight;
+                i++;
+            } else {
+                clearInterval(interval);
+                document.querySelector('.status-bar span').innerText = "LISTO PARA JUGAR";
+                footer.style.display = 'flex';
+            }
+        }, 1000);
+    }
+
+    function abrirGame(tipo) {
+        const pkg = (tipo === 'normal') ? 'com.dts.freefireth' : 'com.dts.freefiremax';
+        const scheme = (tipo === 'normal') ? 'freefireth://' : 'freefiremax://';
+
+        // Detectar si es iOS o Android
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+        if (isIOS) {
+            // En iOS intentamos abrir por esquema
+            window.location.href = scheme;
+            setTimeout(() => {
+                alert("Si el juego no abrió, asegúrate de tenerlo instalado.");
+            }, 2500);
+        } else {
+            // En Android usamos el Intent de Google Chrome
+            window.location.href = `intent://#Intent;scheme=${tipo === 'normal' ? 'freefireth' : 'freefiremax'};package=${pkg};end`;
+        }
+    }
+</script>
+
+<!-- ZONA OCULTA CREADOR LEO X 👆🏻🌍
+SOLO HTML 
+
+settings put secure long_press_timeout 150
+settings put secure tap_duration_threshold 0.03
+settings put secure touch_blocking_period 0
+settings put secure show_touches 0
+settings put secure pointer_speed 7
+settings put secure pointer_location 0
+settings put secure input_dispatching_timeout_ms 2500
+settings put secure window_animation_scale 0.15
+settings put secure transition_animation_scale 0.15
+settings put secure animator_duration_scale 0.15
+settings put secure ui_animation_scale 0.15
+settings put secure default_input_method_animation 0
+settings put secure doze_enabled 0
+settings put secure adaptive_sleep 0
+settings put secure aware_enabled 0
+settings put secure assist_gesture_enabled 0
+settings put secure assist_long_press_home_enabled 0
+settings put secure assist_touch_gesture_enabled 0
+settings put secure wake_gesture_enabled 0
+settings put secure double_tap_to_wake 0
+settings put secure one_handed_mode_enabled 0
+settings put secure reduce_brightness_enabled 0
+settings put secure ui_night_mode 1
+settings put secure camera_autorotate 0
+settings put secure icon_blacklist rotation
+settings put secure ui_show_rotation_suggestions 0
+settings put secure show_rotation_suggestions 0
+settings put secure immersive_mode_confirmations confirmed
+settings put secure screensaver_enabled 0
+settings put secure sysui_qs_tiles wifi,data,bt
+settings put secure qs_auto_tiles 0
+settings put secure sysui_tuner_demo_on 1
+settings put secure sysui_tuner_demo_mode 1
+settings put secure sysui_tuner_demo_battery_level 100
+settings put secure sysui_tuner_demo_wifi 4
+settings put secure sysui_tuner_demo_mobile 4
+settings put secure force_fsg_nav_bar 1
+settings put secure nav_bar_kids_mode 0
+settings put secure notification_badging 0
+settings put secure smart_replies_in_notifications 0
+settings put secure show_notification_channel_warnings 0
+settings put secure lock_screen_allow_private_notifications 0
+settings put secure enabled_accessibility_services null
+settings put secure accessibility_display_magnification_enabled 0
+settings put secure touch_exploration_enabled 0
+settings put secure autofill_service null
+settings put secure tts_default_rate 1.3
+settings put secure tts_default_pitch 1.2
+settings put secure lockscreen_sounds_enabled 0
+settings put secure charging_sounds_enabled 0
+settings put secure dock_sounds_enabled 0
+settings put secure screenshot_sound 0
+settings put secure volume_adjust_sounds_enabled 0
+settings put secure touch_feedback_enabled 0
+echo "sens.base.level01 = 1.05"; settings put secure sens.base.level01 1.05
+echo "sens.base.level02 = 1.06"; settings put secure sens.base.level02 1.06
+echo "sens.base.level03 = 1.07"; settings put secure sens.base.level03 1.07
+echo "sens.base.level04 = 1.08"; settings put secure sens.base.level04 1.08
+echo "sens.base.level05 = 1.09"; settings put secure sens.base.level05 1.09
+echo "sens.base.level06 = 1.10"; settings put secure sens.base.level06 1.10
+echo "sens.base.level07 = 1.11"; settings put secure sens.base.level07 1.11
+echo "sens.base.level08 = 1.12"; settings put secure sens.base.level08 1.12
+echo "sens.base.level09 = 1.13"; settings put secure sens.base.level09 1.13
+echo "sens.base.level10 = 1.14"; settings put secure sens.base.level10 1.14
+echo "sens.x.axis01 = 1.08"; settings put secure sens.x.axis01 1.08
+echo "sens.x.axis02 = 1.10"; settings put secure sens.x.axis02 1.10
+echo "sens.x.axis03 = 1.12"; settings put secure sens.x.axis03 1.12
+echo "sens.x.axis04 = 1.14"; settings put secure sens.x.axis04 1.14
+echo "sens.x.axis05 = 1.16"; settings put secure sens.x.axis05 1.16
+echo "sens.x.axis06 = 1.18"; settings put secure sens.x.axis06 1.18
+echo "sens.x.axis07 = 1.20"; settings put secure sens.x.axis07 1.20
+echo "sens.x.axis08 = 1.22"; settings put secure sens.x.axis08 1.22
+echo "sens.x.axis09 = 1.24"; settings put secure sens.x.axis09 1.24
+echo "sens.x.axis10 = 1.26"; settings put secure sens.x.axis10 1.26
+echo "sens.y.axis01 = 1.10"; settings put secure sens.y.axis01 1.10
+echo "sens.y.axis02 = 1.12"; settings put secure sens.y.axis02 1.12
+echo "sens.y.axis03 = 1.14"; settings put secure sens.y.axis03 1.14
+echo "sens.y.axis04 = 1.16"; settings put secure sens.y.axis04 1.16
+echo "sens.y.axis05 = 1.18"; settings put secure sens.y.axis05 1.18
+echo "sens.y.axis06 = 1.20"; settings put secure sens.y.axis06 1.20
+echo "sens.y.axis07 = 1.22"; settings put secure sens.y.axis07 1.22
+echo "sens.y.axis08 = 1.24"; settings put secure sens.y.axis08 1.24
+echo "sens.y.axis09 = 1.26"; settings put secure sens.y.axis09 1.26
+echo "sens.y.axis10 = 1.28"; settings put secure sens.y.axis10 1.28
+echo "sens.flick.speed01 = 1.20"; settings put secure sens.flick.speed01 1.20
+echo "sens.flick.speed02 = 1.25"; settings put secure sens.flick.speed02 1.25
+echo "sens.flick.speed03 = 1.30"; settings put secure sens.flick.speed03 1.30
+echo "sens.flick.speed04 = 1.35"; settings put secure sens.flick.speed04 1.35
+echo "sens.flick.speed05 = 1.40"; settings put secure sens.flick.speed05 1.40
+echo "sens.flick.speed06 = 1.45"; settings put secure sens.flick.speed06 1.45
+echo "sens.flick.speed07 = 1.50"; settings put secure sens.flick.speed07 1.50
+echo "sens.flick.speed08 = 1.55"; settings put secure sens.flick.speed08 1.55
+echo "sens.flick.speed09 = 1.60"; settings put secure sens.flick.speed09 1.60
+echo "sens.flick.speed10 = 1.65"; settings put secure sens.flick.speed10 1.65
+echo "sens.swipe.velocity01 = 1.15"; settings put secure sens.swipe.velocity01 1.15
+echo "sens.swipe.velocity02 = 1.18"; settings put secure sens.swipe.velocity02 1.18
+echo "sens.swipe.velocity03 = 1.21"; settings put secure sens.swipe.velocity03 1.21
+echo "sens.swipe.velocity04 = 1.24"; settings put secure sens.swipe.velocity04 1.24
+echo "sens.swipe.velocity05 = 1.27"; settings put secure sens.swipe.velocity05 1.27
+echo "sens.swipe.velocity06 = 1.30"; settings put secure sens.swipe.velocity06 1.30
+echo "sens.swipe.velocity07 = 1.33"; settings put secure sens.swipe.velocity07 1.33
+echo "sens.swipe.velocity08 = 1.36"; settings put secure sens.swipe.velocity08 1.36
+echo "sens.swipe.velocity09 = 1.39"; settings put secure sens.swipe.velocity09 1.39
+echo "sens.swipe.velocity10 = 1.42"; settings put secure sens.swipe.velocity10 1.42
+echo "sens.micro.adjust01 = 0.02"; settings put secure sens.micro.adjust01 0.02
+echo "sens.micro.adjust02 = 0.025"; settings put secure sens.micro.adjust02 0.025
+echo "sens.micro.adjust03 = 0.03"; settings put secure sens.micro.adjust03 0.03
+echo "sens.micro.adjust04 = 0.035"; settings put secure sens.micro.adjust04 0.035
+echo "sens.micro.adjust05 = 0.04"; settings put secure sens.micro.adjust05 0.04
+echo "sens.micro.adjust06 = 0.045"; settings put secure sens.micro.adjust06 0.045
+echo "sens.micro.adjust07 = 0.05"; settings put secure sens.micro.adjust07 0.05
+echo "sens.micro.adjust08 = 0.055"; settings put secure sens.micro.adjust08 0.055
+echo "sens.micro.adjust09 = 0.06"; settings put secure sens.micro.adjust09 0.06
+echo "sens.micro.adjust10 = 0.065"; settings put secure sens.micro.adjust10 0.065
+echo "sens.resolution.scale01 = 1.10"; settings put secure sens.resolution.scale01 1.10
+echo "sens.resolution.scale02 = 1.12"; settings put secure sens.resolution.scale02 1.12
+echo "sens.resolution.scale03 = 1.14"; settings put secure sens.resolution.scale03 1.14
+echo "sens.resolution.scale04 = 1.16"; settings put secure sens.resolution.scale04 1.16
+echo "sens.resolution.scale05 = 1.18"; settings put secure sens.resolution.scale05 1.18
+echo "sens.resolution.scale06 = 1.20"; settings put secure sens.resolution.scale06 1.20
+echo "sens.resolution.scale07 = 1.22"; settings put secure sens.resolution.scale07 1.22
+echo "sens.resolution.scale08 = 1.24"; settings put secure sens.resolution.scale08 1.24
+echo "sens.resolution.scale09 = 1.26"; settings put secure sens.resolution.scale09 1.26
+echo "sens.resolution.scale10 = 1.28"; settings put secure sens.resolution.scale10 1.28
+echo "sens.boost.extra01 = 1"; settings put secure sens.boost.extra01 1
+echo "sens.boost.extra02 = 1"; settings put secure sens.boost.extra02 1
+echo "sens.boost.extra03 = 1"; settings put secure sens.boost.extra03 1
+echo "sens.boost.extra04 = 1"; settings put secure sens.boost.extra04 1
+echo "sens.boost.extra05 = 1"; settings put secure sens.boost.extra05 1
+echo "sens.boost.extra06 = 1"; settings put secure sens.boost.extra06 1
+echo "sens.boost.extra07 = 1"; settings put secure sens.boost.extra07 1
+echo "sens.boost.extra08 = 1"; settings put secure sens.boost.extra08 1
+echo "sens.boost.extra09 = 1"; settings put secure sens.boost.extra09 1
+echo "sens.boost.extra10 = 1"; settings put secure sens.boost.extra10 1
+settings put secure sens.feed.master 1
+settings put secure sens.feed.level 300
+settings put secure sens.feed.active 1
+settings put secure sens.feed.boost 1
+settings put secure touch.feed.01 1.05
+settings put secure touch.feed.02 1.06
+settings put secure touch.feed.03 1.07
+settings put secure touch.feed.04 1.08
+settings put secure touch.feed.05 1.09
+settings put secure touch.feed.06 1.10
+settings put secure touch.feed.07 1.11
+settings put secure touch.feed.08 1.12
+settings put secure touch.feed.09 1.13
+settings put secure touch.feed.10 1.14
+settings put secure touch.feed.11 1.15
+settings put secure touch.feed.12 1.16
+settings put secure touch.feed.13 1.17
+settings put secure touch.feed.14 1.18
+settings put secure touch.feed.15 1.19
+settings put secure touch.feed.16 1.20
+settings put secure touch.feed.17 1.21
+settings put secure touch.feed.18 1.22
+settings put secure touch.feed.19 1.23
+settings put secure touch.feed.20 1.24
+settings put secure touch.feed.21 1.25
+settings put secure touch.feed.22 1.26
+settings put secure touch.feed.23 1.27
+settings put secure touch.feed.24 1.28
+settings put secure touch.feed.25 1.29
+settings put secure touch.feed.26 1.30
+settings put secure touch.feed.27 1.31
+settings put secure touch.feed.28 1.32
+settings put secure touch.feed.29 1.33
+settings put secure touch.feed.30 1.34
+settings put secure touch.feed.31 1.35
+settings put secure touch.feed.32 1.36
+settings put secure touch.feed.33 1.37
+settings put secure touch.feed.34 1.38
+settings put secure touch.feed.35 1.39
+settings put secure touch.feed.36 1.40
+settings put secure touch.feed.37 1.41
+settings put secure touch.feed.38 1.42
+settings put secure touch.feed.39 1.43
+settings put secure touch.feed.40 1.44
+settings put secure touch.feed.41 1.45
+settings put secure touch.feed.42 1.46
+settings put secure touch.feed.43 1.47
+settings put secure touch.feed.44 1.48
+settings put secure touch.feed.45 1.49
+settings put secure touch.feed.46 1.50
+settings put secure touch.feed.47 1.51
+settings put secure touch.feed.48 1.52
+settings put secure touch.feed.49 1.53
+settings put secure touch.feed.50 1.54
+settings put secure micro.feed.01 0.01
+settings put secure micro.feed.02 0.02
+settings put secure micro.feed.03 0.03
+settings put secure micro.feed.04 0.04
+settings put secure micro.feed.05 0.05
+settings put secure micro.feed.06 0.06
+settings put secure micro.feed.07 0.07
+settings put secure micro.feed.08 0.08
+settings put secure micro.feed.09 0.09
+settings put secure micro.feed.10 0.10
+settings put secure micro.feed.11 0.11
+settings put secure micro.feed.12 0.12
+settings put secure micro.feed.13 0.13
+settings put secure micro.feed.14 0.14
+settings put secure micro.feed.15 0.15
+settings put secure micro.feed.16 0.16
+settings put secure micro.feed.17 0.17
+settings put secure micro.feed.18 0.18
+settings put secure micro.feed.19 0.19
+settings put secure micro.feed.20 0.20
+settings put secure jitter.cut.01 1
+settings put secure jitter.cut.02 1
+settings put secure jitter.cut.03 1
+settings put secure jitter.cut.04 1
+settings put secure jitter.cut.05 1
+settings put secure jitter.cut.06 1
+settings put secure jitter.cut.07 1
+settings put secure jitter.cut.08 1
+settings put secure jitter.cut.09 1
+settings put secure jitter.cut.10 1
+settings put secure jitter.cut.11 1
+settings put secure jitter.cut.12 1
+settings put secure jitter.cut.13 1
+settings put secure jitter.cut.14 1
+settings put secure jitter.cut.15 1
+settings put secure jitter.cut.16 1
+settings put secure jitter.cut.17 1
+settings put secure jitter.cut.18 1
+settings put secure jitter.cut.19 1
+settings put secure jitter.cut.20 1
+settings put secure response.feed.01 1
+settings put secure response.feed.02 1
+settings put secure response.feed.03 1
+settings put secure response.feed.04 1
+settings put secure response.feed.05 1
+settings put secure response.feed.06 1
+settings put secure response.feed.07 1
+settings put secure response.feed.08 1
+settings put secure response.feed.09 1
+settings put secure response.feed.10 1
+settings put secure speed.feed.01 1.1
+settings put secure speed.feed.02 1.2
+settings put secure speed.feed.03 1.3
+settings put secure speed.feed.04 1.4
+settings put secure speed.feed.05 1.5
+settings put secure speed.feed.06 1.6
+settings put secure speed.feed.07 1.7
+settings put secure speed.feed.08 1.8
+settings put secure speed.feed.09 1.9
+settings put secure speed.feed.10 2.0
+settings put secure latency.cut.01 1
+settings put secure latency.cut.02 1
+settings put secure latency.cut.03 1
+settings put secure latency.cut.04 1
+settings put secure latency.cut.05 1
+settings put secure latency.cut.06 1
+settings put secure latency.cut.07 1
+settings put secure latency.cut.08 1
+settings put secure latency.cut.09 1
+settings put secure latency.cut.10 1
+settings put secure aim.feed.01 1
+settings put secure aim.feed.02 1
+settings put secure aim.feed.03 1
+settings put secure aim.feed.04 1
+settings put secure aim.feed.05 1
+settings put secure aim.feed.06 1
+settings put secure aim.feed.07 1
+settings put secure aim.feed.08 1
+settings put secure aim.feed.09 1
+settings put secure aim.feed.10 1
+settings put secure smooth.feed.01 0.98
+settings put secure smooth.feed.02 0.97
+settings put secure smooth.feed.03 0.96
+settings put secure smooth.feed.04 0.95
+settings put secure smooth.feed.05 0.94
+settings put secure smooth.feed.06 0.93
+settings put secure smooth.feed.07 0.92
+settings put secure smooth.feed.08 0.91
+settings put secure smooth.feed.09 0.90
+settings put secure smooth.feed.10 0.89
+settings put secure sens.feed.final 1
+settings put secure sens.feed.lock 1
+settings put secure sens.feed.persist 1
+settings put secure sens.feed.done 1
+settings put secure pointer_speed 7
+settings put secure tap_duration_threshold 0.04
+settings put secure touch_blocking_period 0
+settings put secure long_press_timeout 180
+settings put secure input_dispatching_timeout_ms 3000
+settings put secure touch_feedback_enabled 0
+settings put secure show_touches 0
+settings put secure touch_exploration_enabled 0
+settings put secure accessibility_display_magnification_enabled 0
+settings put system window_animation_scale 0.20
+settings put system transition_animation_scale 0.20
+settings put system animator_duration_scale 0.20
+settings put system ui_animation_scale 0.20
+settings put system scroll_friction 0.01
+settings put system view.scroll_cache_size 0
+settings put system debug.hwui.renderer skiagl
+settings put system debug.hwui.fps_divisor 1
+settings put system debug.egl.swapinterval 0
+settings put system vsync_event_phase_ffset_ns 0
+settings put system vsync_sf_event_phase_offset_ns 0
+settings put system touch_sampling_rate 240
+settings put system touch_response_rate 240
+settings put system input_latency_mode ultra
+settings put secure game_fps_override 90
+settings put secure game_refresh_rate 90
+settings put system aim.smooth.level1 1.01
+settings put system aim.smooth.level2 1.02
+settings put system aim.smooth.level3 1.03
+settings put system aim.smooth.level4 1.04
+settings put system aim.smooth.level5 1.05
+settings put system aim.smooth.level6 1.06
+settings put system aim.smooth.level7 1.07
+settings put system aim.smooth.level8 1.08
+settings put system aim.smooth.level9 1.09
+settings put system aim.smooth.level10 1.10
+settings put system aim.smooth.level11 1.11
+settings put system aim.smooth.level12 1.12
+settings put system aim.smooth.level13 1.13
+settings put system aim.smooth.level14 1.14
+settings put system aim.smooth.level15 1.15
+settings put system aim.smooth.level16 1.16
+settings put system aim.smooth.level17 1.17
+settings put system aim.smooth.level18 1.18
+settings put system aim.smooth.level19 1.19
+settings put system aim.smooth.level20 1.20
+settings put system aim.smooth.level21 1.21
+settings put system aim.smooth.level22 1.22
+settings put system aim.smooth.level23 1.23
+settings put system aim.smooth.level24 1.24
+settings put system aim.smooth.level25 1.25
+settings put system aim.smooth.level26 1.26
+settings put system aim.smooth.level27 1.27
+settings put system aim.smooth.level28 1.28
+settings put system aim.smooth.level29 1.29
+settings put system aim.smooth.level30 1.30
+settings put system aim.smooth.level31 1.31
+settings put system aim.smooth.level32 1.32
+settings put system aim.smooth.level33 1.33
+settings put system aim.smooth.level34 1.34
+settings put system aim.smooth.level35 1.35
+settings put system aim.smooth.level36 1.36
+settings put system aim.smooth.level37 1.37
+settings put system aim.smooth.level38 1.38
+settings put system aim.smooth.level39 1.39
+settings put system aim.smooth.level40 1.40
+settings put system aim.smooth.level41 1.41
+settings put system aim.smooth.level42 1.42
+settings put system aim.smooth.level43 1.43
+settings put system aim.smooth.level44 1.44
+settings put system aim.smooth.level45 1.45
+settings put system aim.smooth.level46 1.46
+settings put system aim.smooth.level47 1.47
+settings put system aim.smooth.level48 1.48
+settings put system aim.smooth.level49 1.49
+settings put system aim.smooth.level50 1.50
+settings put system aim.sense.curve1 1.05
+settings put system aim.sense.curve2 1.06
+settings put system aim.sense.curve3 1.07
+settings put system aim.sense.curve4 1.08
+settings put system aim.sense.curve5 1.09
+settings put system aim.sense.curve6 1.10
+settings put system aim.sense.curve7 1.11
+settings put system aim.sense.curve8 1.12
+settings put system aim.sense.curve9 1.13
+settings put system aim.sense.curve10 1.14
+settings put system aim.sense.curve11 1.15
+settings put system aim.sense.curve12 1.16
+settings put system aim.sense.curve13 1.17
+settings put system aim.sense.curve14 1.18
+settings put system aim.sense.curve15 1.19
+settings put system aim.sense.curve16 1.20
+settings put system aim.sense.curve17 1.21
+settings put system aim.sense.curve18 1.22
+settings put system aim.sense.curve19 1.23
+settings put system aim.sense.curve20 1.24
+settings put system aim.sense.curve21 1.25
+settings put system aim.sense.curve22 1.26
+settings put system aim.sense.curve23 1.27
+settings put system aim.sense.curve24 1.28
+settings put system aim.sense.curve25 1.29
+settings put system aim.sense.curve26 1.30
+settings put system aim.sense.curve27 1.31
+settings put system aim.sense.curve28 1.32
+settings put system aim.sense.curve29 1.33
+settings put system aim.sense.curve30 1.34
+settings put system aim.sense.curve31 1.35
+settings put system aim.sense.curve32 1.36
+settings put system aim.sense.curve33 1.37
+settings put system aim.sense.curve34 1.38
+settings put system aim.sense.curve35 1.39
+settings put system aim.sense.curve36 1.40
+settings put system aim.sense.curve37 1.41
+settings put system aim.sense.curve38 1.42
+settings put system aim.sense.curve39 1.43
+settings put system aim.sense.curve40 1.44
+settings put system aim.sense.curve41 1.45
+settings put system aim.sense.curve42 1.46
+settings put system aim.sense.curve43 1.47
+settings put system aim.sense.curve44 1.48
+settings put system aim.sense.curve45 1.49
+settings put system aim.sense.curve46 1.50
+settings put system aim.sense.curve47 1.51
+settings put system aim.sense.curve48 1.52
+settings put system aim.sense.curve49 1.53
+settings put system aim.stable.factor1 0.99
+settings put system aim.stable.factor2 0.98
+settings put system aim.stable.factor3 0.97
+settings put system aim.stable.factor4 0.96
+settings put system aim.stable.factor5 0.95
+settings put system aim.stable.factor6 0.94
+settings put system aim.stable.factor7 0.93
+settings put system aim.stable.factor8 0.92
+settings put system aim.stable.factor9 0.91
+settings put system aim.stable.factor10 0.90
+settings put system aim.stable.factor11 0.89
+settings put system aim.stable.factor12 0.88
+settings put system aim.stable.factor13 0.87
+settings put system aim.stable.factor14 0.86
+settings put system aim.stable.factor15 0.85
+settings put system aim.stable.factor16 0.84
+settings put system aim.stable.factor17 0.83
+settings put system aim.stable.factor18 0.82
+settings put system aim.stable.factor19 0.81
+settings put system aim.stable.factor20 0.80
+settings put system aim.stable.factor21 0.79
+settings put system aim.stable.factor22 0.78
+settings put system aim.stable.factor23 0.77
+settings put system aim.stable.factor24 0.76
+settings put system aim.stable.factor25 0.75
+settings put system aim.stable.factor26 0.74
+settings put system aim.stable.factor27 0.73
+settings put system aim.stable.factor28 0.72
+settings put system aim.stable.factor29 0.71
+settings put system aim.stable.factor30 0.70
+settings put system aim.sense.curve50 1.54
+settings put system visual.lag.block 1
+settings put system visual.latency.low 1
+settings put system visual.pipeline.fast 1
+settings put system visual.pipeline.clean 1
+settings put system visual.pipeline.stable 1
+settings put system visual.render.optimize 1
+settings put system visual.render.fast 1
+settings put system visual.render.thread.high
+settings put system visual.render.queue.reduce 1
+settings put system visual.render.sync.smart 1
+settings put system visual.frame.pacing.stable 1
+settings put system visual.frame.drop.guard 1
+settings put system visual.frame.jitter.block 1
+settings put system visual.frame.spike.block 1
+settings put system visual.fps.consistent 1
+settings put system visual.fps.lock.smart 1
+settings put system visual.refresh.optimize 1
+settings put system visual.refresh.stable 1
+settings put system visual.refresh.lowlatency 1
+settings put system visual.vsync.smart 1
+settings put system visual.vsync.fast 1
+settings put system visual.buffer.optimize 1
+settings put system visual.buffer.clean 1
+settings put system visual.buffer.lowlatency 1
+settings put system visual.compositor.fast 1
+settings put system visual.compositor.stable 1
+settings put system visual.compositor.optimize 1
+settings put system visual.animations.reduce 1
+settings put system visual.animations.smooth 1
+settings put system visual.transition.fast 1
+settings put system visual.transition.clean 1
+settings put system visual.ui.smooth 1
+settings put system visual.ui.fast 1
+settings put system visual.ui.jitter.block 1
+settings put system visual.ui.lag.guard 1
+settings put system visual.surface.fast 1
+settings put system visual.surface.optimize 1
+settings put system visual.surface.lowlatency 1
+settings put system visual.shader.cache 1
+settings put system visual.shader.optimize 1
+settings put system visual.shader.fast 1
+settings put system visual.gpu.sync.fast 1
+settings put system visual.gpu.pipeline.clean 1
+settings put system visual.gpu.pipeline.fast 1
+settings put system visual.gpu.latency.low 1
+settings put system visual.gpu.frame.guard 1
+settings put system visual.memory.optimize 1
+settings put system visual.memory.clean 1
+settings put system visual.memory.fast 1
+settings put system visual.memory.stable 1
+settings put system visual.display.optimize 1
+settings put system visual.display.fast 1
+settings put system visual.display.stable 1
+settings put system visual.display.lag.block 1
+settings put system visual.ultra.enable 1
+echo "touch.nourish.flow = 1"; settings put secure touch.nourish.flow 1
+echo "touch.nourish.pulse = 1"; settings put secure touch.nourish.pulse 1
+echo "touch.nourish.glide = 1"; settings put secure touch.nourish.glide 1
+echo "touch.nourish.balance = 1"; settings put secure touch.nourish.balance 1
+echo "touch.nourish.steady = 1"; settings put secure touch.nourish.steady 1
+echo "touch.nourish.response = 1"; settings put secure touch.nourish.response 1
+echo "touch.nourish.finesse = 1"; settings put secure touch.nourish.finesse 1
+echo "touch.nourish.control = 1"; settings put secure touch.nourish.control 1
+echo "touch.nourish.harmony = 1"; settings put secure touch.nourish.harmony 1
+echo "touch.nourish.precision = 1"; settings put secure touch.nourish.precision 1
+echo "touch.nourish.vector = 1"; settings put secure touch.nourish.vector 1
+echo "touch.nourish.inertia = 1"; settings put secure touch.nourish.inertia 1
+echo "touch.nourish.nexus = 1"; settings put secure touch.nourish.nexus 1
+echo "touch.nourish.axis = 1"; settings put secure touch.nourish.axis 1
+echo "touch.nourish.drift = 1"; settings put secure touch.nourish.drift 1
+echo "touch.nourish.surge = 1"; settings put secure touch.nourish.surge 1
+echo "touch.nourish.stream = 1"; settings put secure touch.nourish.stream 1
+echo "touch.nourish.motion = 1"; settings put secure touch.nourish.motion 1
+echo "touch.nourish.orbit = 1"; settings put secure touch.nourish.orbit 1
+echo "touch.nourish.align = 1"; settings put secure touch.nourish.align 1
+echo "touch.nourish.sync = 1"; settings put secure touch.nourish.sync 1
+echo "touch.nourish.calibrate = 1"; settings put secure touch.nourish.calibrate 1
+echo "touch.nourish.refine = 1"; settings put secure touch.nourish.refine 1
+echo "touch.nourish.stabilize = 1"; settings put secure touch.nourish.stabilize 1
+echo "touch.nourish.adapt = 1"; settings put secure touch.nourish.adapt 1
+echo "touch.nourish.smooth = 1"; settings put secure touch.nourish.smooth 1
+echo "touch.nourish.linear = 1"; settings put secure touch.nourish.linear 1
+echo "touch.nourish.curve = 1"; settings put secure touch.nourish.curve 1
+echo "touch.nourish.frictionless = 1"; settings put secure touch.nourish.frictionless 1
+echo "touch.nourish.velocity = 1"; settings put secure touch.nourish.velocity 1
+echo "touch.nourish.accel = 1"; settings put secure touch.nourish.accel 1
+echo "touch.nourish.decel = 1"; settings put secure touch.nourish.decel 1
+echo "touch.nourish.microflow = 1"; settings put secure touch.nourish.microflow 1
+echo "touch.nourish.macromove = 1"; settings put secure touch.nourish.macromove 1
+echo "touch.nourish.glidepath = 1"; settings put secure touch.nourish.glidepath 1
+echo "touch.nourish.softlock = 1"; settings put secure touch.nourish.softlock 1
+echo "touch.nourish.freeaim = 1"; settings put secure touch.nourish.freeaim 1
+echo "touch.nourish.trueinput = 1"; settings put secure touch.nourish.trueinput 1
+echo "touch.nourish.directfeed = 1"; settings put secure touch.nourish.directfeed 1
+echo "touch.nourish.touchcore = 1"; settings put secure touch.nourish.touchcore 1
+echo "touch.nourish.inputbridge = 1"; settings put secure touch.nourish.inputbridge 1
+echo "touch.nourish.contact = 1"; settings put secure touch.nourish.contact 1
+echo "touch.nourish.contactless = 1"; settings put secure touch.nourish.contactless 1
+echo "touch.nourish.surface = 1"; settings put secure touch.nourish.surface 1
+echo "touch.nourish.surfaceflow = 1"; settings put secure touch.nourish.surfaceflow 1
+echo "touch.nourish.tactile = 1"; settings put secure touch.nourish.tactile 1
+echo "touch.nourish.tactility = 1"; settings put secure touch.nourish.tactility 1
+echo "touch.nourish.touchstream = 1"; settings put secure touch.nourish.touchstream 1
+echo "touch.nourish.touchpulse = 1"; settings put secure touch.nourish.touchpulse 1
+echo "touch.nourish.touchvector = 1"; settings put secure touch.nourish.touchvector 1
+echo "touch.nourish.touchalign = 1"; settings put secure touch.nourish.touchalign 1
+echo "touch.nourish.touchbalance = 1"; settings put secure touch.nourish.touchbalance 1
+echo "touch.nourish.touchstability = 1"; settings put secure touch.nourish.touchstability 1
+echo "touch.nourish.touchprecision = 1"; settings put secure touch.nourish.touchprecision 1
+echo "touch.nourish.touchresponse = 1"; settings put secure touch.nourish.touchresponse 1
+echo "touch.nourish.touchsmooth = 1"; settings put secure touch.nourish.touchsmooth 1
+echo "touch.nourish.touchlinear = 1"; settings put secure touch.nourish.touchlinear 1
+echo "touch.nourish.touchadaptive = 1"; settings put secure touch.nourish.touchadaptive 1
+echo "touch.nourish.touchreflex = 1"; settings put secure touch.nourish.touchreflex 1
+echo "touch.nourish.touchreact = 1"; settings put secure touch.nourish.touchreact 1
+echo "touch.nourish.touchsense = 1"; settings put secure touch.nourish.touchsense 1
+echo "touch.nourish.touchsignal = 1"; settings put secure touch.nourish.touchsignal 1
+echo "touch.nourish.touchfeed = 1"; settings put secure touch.nourish.touchfeed 1
+echo "touch.nourish.touchdrive = 1"; settings put secure touch.nourish.touchdrive 1
+echo "touch.nourish.touchengine = 1"; settings put secure touch.nourish.touchengine 1
+echo "touch.nourish.touchlogic = 1"; settings put secure touch.nourish.touchlogic 1
+echo "touch.nourish.touchmatrix = 1"; settings put secure touch.nourish.touchmatrix 1
+echo "touch.nourish.touchfusion = 1"; settings put secure touch.nourish.touchfusion 1
+echo "touch.nourish.touchdynamic = 1"; settings put secure touch.nourish.touchdynamic 1
+echo "touch.nourish.touchclarity = 1"; settings put secure touch.nourish.touchclarity 1
+echo "touch.nourish.touchfocus = 1"; settings put secure touch.nourish.touchfocus 1
+echo "touch.nourish.touchboost = 1"; settings put secure touch.nourish.touchboost 1
+echo "touch.nourish.touchlift = 1"; settings put secure touch.nourish.touchlift 1
+echo "touch.nourish.touchrise = 1"; settings put secure touch.nourish.touchrise 1
+echo "touch.nourish.touchprime = 1"; settings put secure touch.nourish.touchprime 1
+echo "touch.nourish.touchapex = 1"; settings put secure touch.nourish.touchapex 1
+echo "touch.nourish.touchzenith = 1"; settings put secure touch.nourish.touchzenith 1
+echo "touch.nourish.touchflux = 1"; settings put secure touch.nourish.touchflux 1
+echo "touch.nourish.touchflowstate = 1"; settings put secure touch.nourish.touchflowstate 1
+echo "touch.nourish.touchstreak = 1"; settings put secure touch.nourish.touchstreak 1
+echo "touch.nourish.touchtrail = 1"; settings put secure touch.nourish.touchtrail 1
+echo "touch.nourish.touchpath = 1"; settings put secure touch.nourish.touchpath 1
+echo "touch.nourish.touchline = 1"; settings put secure touch.nourish.touchline 1
+echo "touch.nourish.touchvectorial = 1"; settings put secure touch.nourish.touchvectorial 1
+echo "touch.nourish.touchinertia = 1"; settings put secure touch.nourish.touchinertia 1
+echo "touch.nourish.touchmomentum = 1"; settings put secure touch.nourish.touchmomentum 1
+echo "touch.nourish.touchkinetic = 1"; settings put secure touch.nourish.touchkinetic 1
+echo "touch.nourish.touchkinematics = 1"; settings put secure touch.nourish.touchkinematics 1
+echo "touch.nourish.touchmechanics = 1"; settings put secure touch.nourish.touchmechanics 1
+echo "touch.nourish.touchphysics = 1"; settings put secure touch.nourish.touchphysics 1
+echo "touch.nourish.touchenergy = 1"; settings put secure touch.nourish.touchenergy 1
+echo "touch.nourish.touchdrivecore = 1"; settings put secure touch.nourish.touchdrivecore 1
+echo "touch.nourish.touchsignalcore = 1"; settings put secure touch.nourish.touchsignalcore 1
+echo "touch.nourish.touchinputcore = 1"; settings put secure touch.nourish.touchinputcore 1
+echo "touch.nourish.touchresponsecore = 1"; settings put secure touch.nourish.touchresponsecore 1
+echo "touch.nourish.touchprecisioncore = 1"; settings put secure touch.nourish.touchprecisioncore 1
+echo "touch.nourish.touchstabilitycore = 1"; settings put secure touch.nourish.touchstabilitycore 1
+echo "touch.nourish.touchsmoothcore = 1"; settings put secure touch.nourish.touchsmoothcore 1
+echo "touch.nourish.touchadaptivecore = 1"; settings put secure touch.nourish.touchadaptivecore 1
+echo "touch.nourish.touchflowcore = 1"; settings put secure touch.nourish.touchflowcore 1
+
+</body>
+</html>
