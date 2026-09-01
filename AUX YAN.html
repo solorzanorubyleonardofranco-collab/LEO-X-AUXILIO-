@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Flotante - YAN X PANEL YOUTUBE LEGIT</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: #0b0b0e;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Canvas de Partículas */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Ventana Principal Pantalla Completa / Grande */
+        #floating-menu {
+            width: 100%;
+            max-width: 600px;
+            height: 92vh;
+            background: rgba(17, 17, 21, 0.95);
+            border: 2px solid #a855f7;
+            border-radius: 20px;
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.4);
+            display: flex;
+            flex-direction: column;
+            z-index: 1001;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+        }
+
+        /* Cabecera del Menú */
+        .menu-header {
+            background: #18181d;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #222228;
+        }
+
+        .menu-header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-header-title span {
+            color: #fff;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: #fff;
+        }
+
+        /* Cuerpo del Menú con Pestañas Laterales */
+        .menu-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar-tabs {
+            width: 75px;
+            background: #141418;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding-top: 20px;
+            border-right: 1px solid #222228;
+        }
+
+        .tab-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: #1c1c21;
+            font-size: 24px;
+            transition: all 0.2s;
+        }
+
+        .tab-icon.active {
+            background: #2b2b36;
+            border: 2px solid #a855f7;
+        }
+
+        /* Contenido de las Secciones Ampliado */
+        .tab-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Estilo de Opciones en Grande */
+        .option-group {
+            margin-bottom: 24px;
+        }
+
+        .option-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            color: #fff;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .option-sublabel {
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+
+        /* Switch Toggle Ampliado */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #2b2b33;
+            transition: .3s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #888;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #a855f7;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+            background-color: white;
+        }
+
+        /* Slider de Rango Ampliado */
+        .range-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            background: #2b2b33;
+            height: 10px;
+            border-radius: 5px;
+            outline: none;
+            margin-top: 10px;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #a855f7;
+            cursor: pointer;
+        }
+
+        /* Botón Activar Panel */
+        .btn-activar {
+            width: 100%;
+            padding: 16px;
+            background: #a855f7;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            letter-spacing: 1px;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+            transition: 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-activar:active {
+            transform: scale(0.97);
+            background: #9333ea;
+        }
+
+        /* Scrollbar personalizado */
+        .tab-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .tab-content::-webkit-scrollbar-thumb {
+            background: #a855f7;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particles-canvas"></canvas>
+
+    <div id="floating-menu">
+        <div class="menu-header">
+            <div class="menu-header-title">
+                <span>PANEL YOUTUBE</span>
+            </div>
+            <button class="close-btn" onclick="toggleMenu()">✕</button>
+        </div>
+
+        <div class="menu-body">
+            <div class="sidebar-tabs">
+                <div class="tab-icon active" onclick="switchTab(0)" title="Dólar">
+                    💲
+                </div>
+                <div class="tab-icon" onclick="switchTab(1)" title="Calavera">
+                    ☠️
+                </div>
+                <div class="tab-icon" onclick="switchTab(2)" title="Copo de Nieve">
+                    ❄️
+                </div>
+            </div>
+
+            <div class="tab-content active" id="section-0">
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>AIMBOT AUX</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">Las balas quedan con un aimbot disimulado</div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>AUXILIAR DE MIRA X2</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">Mayor precisión</div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>precisão</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">Tocando ajustes del sistema</div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>CALIBRADOR DE MIRA</span>
+                        <span id="val-calibrador">0</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="0" class="range-slider" oninput="updateVal('val-calibrador', this.value)">
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>HS HEAD</span>
+                        <span id="val-hs">0</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="0" class="range-slider" oninput="updateVal('val-hs', this.value)">
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>CLK</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>PVP</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>BR Y DECLA</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">CODIGO BR DECLA PVP Y CLK</div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="section-1">
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>RECOIL ESTABILIZADO</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">ACTIVA AJUSTES UNIVERSALES</div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>AJUDA VISUAL</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">ACUSSED</div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>AIMLOCK</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">ACTIVAR PANEL YOUTUBE💀</div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>EASY HEADSHOT</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">AUXILIAR DE SMGS ESCOPETAS Y PISTOLAS</div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>AUXILIO DE MIRA</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">PRECISIÓN 30%</div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="section-2">
+                <div class="option-group">
+                    <div class="option-label" style="font-size: 18px; color: #a855f7;">
+                        <span>YAN</span>
+                    </div>
+                </div>
+                <div class="option-group" style="margin-top: 20px;">
+                    <div class="option-label">
+                        <span>ESTADO</span>
+                        <span id="status-text" style="color: #c084fc; font-weight: bold;">INACTIVO</span>
+                    </div>
+                </div>
+
+                <div class="option-group" style="margin-top: 25px;">
+                    <button class="btn-activar" onclick="abrirFFNormal()">ACTIVAR PANEL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Lógica de Partículas Moradas
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const particlesArray = [];
+        const numberOfParticles = 75;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2.5 + 1;
+                this.speedX = (Math.random() - 0.5) * 1.2;
+                this.speedY = (Math.random() - 0.5) * 1.2;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width) this.x = 0;
+                else if (this.x < 0) this.x = canvas.width;
+
+                if (this.y > canvas.height) this.y = 0;
+                else if (this.y < 0) this.y = canvas.height;
+            }
+
+            draw() {
+                ctx.fillStyle = '#a855f7';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+        initParticles();
+
+        function connectParticles() {
+            for (let a = 0; a < particlesArray.length; a++) {
+                for (let b = a; b < particlesArray.length; b++) {
+                    const dx = particlesArray[a].x - particlesArray[b].x;
+                    const dy = particlesArray[a].y - particlesArray[b].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 110) {
+                        const opacity = 1 - (distance / 110);
+                        ctx.strokeStyle = `rgba(168, 85, 247, ${opacity * 0.4})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            connectParticles();
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // Lógica del Menú
+        function toggleMenu() {
+            const menu = document.getElementById('floating-menu');
+            menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function switchTab(index) {
+            const contents = document.querySelectorAll('.tab-content');
+            const icons = document.querySelectorAll('.tab-icon');
+
+            contents.forEach((content, idx) => {
+                content.classList.toggle('active', idx === index);
+            });
+
+            icons.forEach((icon, idx) => {
+                icon.classList.toggle('active', idx === index);
+            });
+        }
+
+        function updateVal(id, value) {
+            document.getElementById(id).innerText = value;
+        }
+
+        function checkStatus() {
+            const checkboxes = document.querySelectorAll('.status-trigger');
+            const statusText = document.getElementById('status-text');
+            
+            let allChecked = true;
+            checkboxes.forEach(cb => {
+                if (!cb.checked) {
+                    allChecked = false;
+                }
+            });
+
+            if (allChecked) {
+                statusText.innerText = "ACTIVO";
+                statusText.style.color = "#4ade80"; 
+            } else {
+                statusText.innerText = "INACTIVO";
+                statusText.style.color = "#c084fc"; 
+            }
+        }
+
+        function abrirFFNormal() {
+            const androidIntent = "intent://#Intent;scheme=freefireth;package=com.dts.freefireth;end";
+            const iosScheme = "freefireth://";
+            
+            window.location.href = androidIntent;
+            setTimeout(() => {
+                window.location.href = iosScheme;
+            }, 500);
+        }
+    </script>
+</body>
+</html>
