@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Flotante - YAN MODZ🐀</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: #0b0b0e;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Icono Flotante (Calavera roja) */
+        #floating-icon {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background: rgba(20, 20, 20, 0.9);
+            border: 2px solid #ff3333;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+            z-index: 1000;
+            font-size: 30px;
+        }
+
+        /* Ventana Principal del Menú Ampliada */
+        #floating-menu {
+            width: 100%;
+            max-width: 480px;
+            background: #111115;
+            border: 2px solid #ff3333;
+            border-radius: 20px;
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            z-index: 1001;
+            overflow: hidden;
+        }
+
+        /* Cabecera del Menú */
+        .menu-header {
+            background: #18181d;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #222228;
+        }
+
+        .menu-header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-header-title span {
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: #fff;
+        }
+
+        /* Cuerpo del Menú con Pestañas Laterales */
+        .menu-body {
+            display: flex;
+            height: 520px;
+        }
+
+        .sidebar-tabs {
+            width: 65px;
+            background: #141418;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding-top: 16px;
+            border-right: 1px solid #222228;
+        }
+
+        .tab-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: #1c1c21;
+            font-size: 22px;
+            transition: all 0.2s;
+        }
+
+        .tab-icon.active {
+            background: #2b2b36;
+            border: 2px solid #ff3333;
+        }
+
+        /* Contenido de las Secciones */
+        .tab-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Estilo de Opciones en Grande */
+        .option-group {
+            margin-bottom: 20px;
+        }
+
+        .option-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            color: #fff;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .option-sublabel {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 6px;
+        }
+
+        /* Switch Toggle Ampliado */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #2b2b33;
+            transition: .3s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #888;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #ff3333;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+            background-color: white;
+        }
+
+        /* Slider de Rango Ampliado */
+        .range-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            background: #2b2b33;
+            height: 8px;
+            border-radius: 4px;
+            outline: none;
+            margin-top: 8px;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ff3333;
+            cursor: pointer;
+        }
+
+        /* Botón Activar Panel */
+        .btn-activar {
+            width: 100%;
+            padding: 14px;
+            background: #ff3333;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            letter-spacing: 1px;
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.4);
+            transition: 0.3s;
+            margin-top: 15px;
+        }
+
+        .btn-activar:active {
+            transform: scale(0.97);
+            background: #cc0000;
+        }
+
+        /* Scrollbar personalizado */
+        .tab-content::-webkit-scrollbar {
+            width: 5px;
+        }
+        .tab-content::-webkit-scrollbar-thumb {
+            background: #ff3333;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="floating-icon" onclick="toggleMenu()">
+        ❄️
+    </div>
+
+    <div id="floating-menu">
+        <div class="menu-header">
+            <div class="menu-header-title">
+                <span>AUXILIO YAN❄️</span>
+            </div>
+            <button class="close-btn" onclick="toggleMenu()">✕</button>
+        </div>
+
+        <div class="menu-body">
+            <div class="sidebar-tabs">
+                <div class="tab-icon active" onclick="switchTab(0)" title="Dólar">
+                    ❄️
+                </div>
+                <div class="tab-icon" onclick="switchTab(1)" title="Calavera">
+                    ❄️
+                </div>
+                <div class="tab-icon" onclick="switchTab(2)" title="Copo de Nieve">
+                    ❄️
+                </div>
+            </div>
+
+            <div class="tab-content active" id="section-0">
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>HS ALTOS❄️</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">Las balas quedan con un aimbot disimulado</div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>AUXILIAR DE MIRA X2 X4</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">Mayor precisión</div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>PRECISIÓN X.Y</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">Tocando ajustes del sistema</div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>CALIBRADOR</span>
+                        <span id="val-calibrador">0</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="0" class="range-slider" oninput="updateVal('val-calibrador', this.value)">
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>HS</span>
+                        <span id="val-hs">0</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="0" class="range-slider" oninput="updateVal('val-hs', this.value)">
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>UMP ACUSSED</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>CALIBRACIÓN DE AJUSTES</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>RENDIMIENTO MAX</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">RENDIMIENTO MAXIMO</div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="section-1">
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>YAN X PROXY</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">ACTIVA AJUSTES OCULTOS</div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>AIMBOT LEGIT</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">TOUCH CONTROLADO</div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>MODO SENSIBILIDAD</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">SENSI MÁS FLUIDA ALA HORA DE LEVANTAR MIRA❄️</div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>HEADSHOT</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">AUXILIAR DE SMGS ESCOPETAS</div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-label">
+                        <span>AUXILIO DE MIRA YAN</span>
+                        <label class="switch"><input type="checkbox" class="status-trigger" onchange="checkStatus()"><span class="slider"></span></label>
+                    </div>
+                    <div class="option-sublabel">PRECISIÓN 50%</div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="section-2">
+                <div class="option-group">
+                    <div class="option-label" style="font-size: 16px; color: #ff3333;">
+                        <span>YAN X</span>
+                    </div>
+                </div>
+                <div class="option-group" style="margin-top: 20px;">
+                    <div class="option-label">
+                        <span>ESTADO</span>
+                        <span id="status-text" style="color: #ff4d4d; font-weight: bold;">INACTIVO</span>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN Y BOTÓN AGREGADO -->
+                <div class="option-group" style="margin-top: 25px;">
+                    <button class="btn-activar" onclick="abrirFFNormal()">ACTIVAR PANEL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('floating-menu');
+            menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function switchTab(index) {
+            const contents = document.querySelectorAll('.tab-content');
+            const icons = document.querySelectorAll('.tab-icon');
+
+            contents.forEach((content, idx) => {
+                content.classList.toggle('active', idx === index);
+            });
+
+            icons.forEach((icon, idx) => {
+                icon.classList.toggle('active', idx === index);
+            });
+        }
+
+        function updateVal(id, value) {
+            document.getElementById(id).innerText = value;
+        }
+
+        function checkStatus() {
+            const checkboxes = document.querySelectorAll('.status-trigger');
+            const statusText = document.getElementById('status-text');
+            
+            let allChecked = true;
+            checkboxes.forEach(cb => {
+                if (!cb.checked) {
+                    allChecked = false;
+                }
+            });
+
+            if (allChecked) {
+                statusText.innerText = "ACTIVO";
+                statusText.style.color = "#4ade80"; 
+            } else {
+                statusText.innerText = "INACTIVO";
+                statusText.style.color = "#ff4d4d"; 
+            }
+        }
+
+        // LÓGICA PARA ABRIR FREE FIRE NORMAL
+        function abrirFFNormal() {
+            const androidIntent = "intent://#Intent;scheme=freefireth;package=com.dts.freefireth;end";
+            const iosScheme = "freefireth://";
+            
+            window.location.href = androidIntent;
+            setTimeout(() => {
+                window.location.href = iosScheme;
+            }, 500);
+        }
+    </script>
+</body>
+  </html>
+                      
